@@ -5,7 +5,7 @@ define([MY_MINOR_VERSION], [0])
 define([MY_VERSION], MY_MAJOR_VERSION.MY_MINOR_VERSION)
 define([MY_EMAIL], [adb1413@rit.edu])
 AC_INIT(MY_NAME, MY_VERSION, MY_EMAIL)
-AC_CONFIG_SRCDIR([src/hello-world.c])
+AC_CONFIG_SRCDIR([src/hello.c])
 AC_CONFIG_HEADERS([config.h])
 AC_CANONICAL_HOST
 
