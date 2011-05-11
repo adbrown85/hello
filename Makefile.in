@@ -1,0 +1,88 @@
+# @configure_input@
+
+# Package
+package      := @PACKAGE_NAME@
+version      := @PACKAGE_VERSION@
+major        := @PACKAGE_MAJOR_VERSION@
+minor        := @PACKAGE_MINOR_VERSION@
+tarname      := @PACKAGE_TARNAME@
+
+# Directories
+prefix       := @prefix@
+exec_prefix  := @exec_prefix@
+bindir       := @bindir@
+libdir       := @libdir@
+includedir   := @includedir@
+srcdir       := src
+builddir     := build
+VPATH        := $(srcdir) $(builddir)
+
+# Tools
+CC           := @CC@
+INCLUDES     := -I./ -I$(srcdir)/
+DEFS         := @DEFS@
+CFLAGS       := @CFLAGS@ $(DEFS) $(INCLUDES)
+LIBS         := @LIBS@
+LDFLAGS      := @LDFLAGS@
+INSTALL      := @INSTALL@
+
+# Files
+sources      := ${wildcard $(srcdir)/*.c}
+objects      := ${notdir ${subst .c,.lo,$(sources)}}
+library      := lib$(tarname)-$(major).la
+
+# Interface
+.PHONY: all clean distclean
+.DEFAULT: all
+all: library
+clean:
+	$(RM) -r $(builddir)
+distclean: clean
+	$(RM) config.h
+	$(RM) config.log
+	$(RM) config.status
+	$(RM) Makefile
+maintainer-clean: distclean
+	$(RM) aclocal.m4
+	$(RM) -r autom4te.cache
+	$(RM) autoscan.log
+	$(RM) configure.scan
+	$(RM) config.guess
+	$(RM) config.h.in
+	$(RM) config.sub
+	$(RM) configure
+	$(RM) install-sh
+	$(RM) libtool
+	$(RM) ltmain.sh
+
+# Objects
+.PHONY: objects
+objects: $(objects)
+%.lo: %.c
+	@mkdir -p $(builddir)
+	@echo "  CC      $@"
+	@libtool --mode=compile --quiet \
+            $(CC) \
+            $(CFLAGS) \
+            -c $< -o $(builddir)/$@
+
+# Library
+.PHONY: library
+library: $(library)
+$(library): $(objects)
+	@echo "  LD      $@"
+	@libtool --mode=link --quiet \
+            $(CC) \
+            $(LDFLAGS) \
+            -o $(builddir)/$(library) \
+            ${addprefix $(builddir)/,$(objects)} \
+            -rpath $(libdir) \
+            -version-info $(minor):$(minor)
+
+# Installation
+.PHONY: install
+install: library
+	@echo "  INSTALL $(library)"
+	@libtool --mode=install --quiet \
+            $(INSTALL) $(builddir)/$(library) $(libdir)
+	@libtool --mode=finish -n --quiet $(libdir)
