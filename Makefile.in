@@ -28,6 +28,7 @@ INSTALL      := @INSTALL@
 
 # Files
 sources      := ${wildcard $(srcdir)/*.c}
+headers      := ${wildcard $(srcdir)/*.h}
 objects      := ${notdir ${subst .c,.lo,$(sources)}}
 library      := lib$(tarname)-$(major).la
 
@@ -58,7 +59,7 @@ maintainer-clean: distclean
 # Objects
 .PHONY: objects
 objects: $(objects)
-%.lo: %.c
+%.lo: %.c %.h
 	@mkdir -p $(builddir)
 	@echo "  CC      $@"
 	@libtool --mode=compile --quiet \
@@ -86,3 +87,5 @@ install: library
 	@libtool --mode=install --quiet \
             $(INSTALL) $(builddir)/$(library) $(libdir)
 	@libtool --mode=finish -n --quiet $(libdir)
+	@echo "  INSTALL $(headers)"
+	@$(INSTALL) $(headers) $(includedir)
